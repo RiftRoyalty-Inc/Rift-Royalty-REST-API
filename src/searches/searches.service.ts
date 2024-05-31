@@ -14,11 +14,10 @@ export class SearchesService {
             "extensions": {
                 "persistedQuery": {
                     "version": 1,
-                    "sha256Hash": "121904bc8dec8ac7656566373d42a82514e022979af0d8aefe676d3afdb5281c"
+                    "sha256Hash": "e50fb70014ec2a1df173836ee403cbed27f0314e32579f54f0c3f72a380e8cbc"
                 }
             }
         };
-        console.log(requestBody);
         const requestBodyString = JSON.stringify(requestBody);
         const url = "https://mobalytics.gg/api/lol/graphql/v1/query";
         const response = await fetch(url, {
@@ -27,7 +26,7 @@ export class SearchesService {
                 'Content-Type': 'application/json',
             },
             body: requestBodyString
-        }).then(response => {return response.json()}).then(data => {return data.data.search});
+        }).then(response => {return response.json()}).then(data => {console.log(data.data.search); return data.data.search});
         return response;
     }
 
