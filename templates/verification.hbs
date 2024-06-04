@@ -1,2 +1,83 @@
-<h1>Email Verification</h1>
-<p>Your verification code is: {{ code }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+        }
+        .header {
+            text-align: center;
+        }
+        .header img {
+            width: 100px;
+        }
+        .content {
+            text-align: center;
+            padding: 20px;
+        }
+        .verification-code {
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #e0f7fa;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        .confirm-button {
+            display: inline-block;
+            background-color: #008CBA;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777777;
+            margin-top: 20px;
+        }
+        .footer a {
+            color: #008CBA;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="https://www.mailmodo.com/assets/images/logo.png" alt="Mailmodo Logo">
+        </div>
+        <div class="content">
+            <h1>You Are Almost There!</h1>
+            <p>Only one step left to become a part of Mailmodo's family. Please enter this verification code in the window where you started creating your account.</p>
+            <div class="verification-code">{{ code }}</div>
+            <p>This code is valid for the next 15 minutes.</p>
+            <p>Or click on the button below to verify your email 👇</p>
+        </div>
+        <div class="footer">
+            <p>
+                Mailmodo<br>
+                800 Bordway Suit 1500 New York, NY 000423, USA<br>
+                Call us - 0800 000 900
+            </p>
+        </div>
+    </div>
+</body>
+</html>

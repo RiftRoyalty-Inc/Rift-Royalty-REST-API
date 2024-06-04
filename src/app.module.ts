@@ -14,6 +14,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { EmailVerificationModule } from './email-verification/email-verification.module';
+import { MatchModule } from './match/match.module';
 // Autorizar comunicacion porque si no dara error
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 @Module({
@@ -41,6 +42,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         LeagueoflegendsModule,
         NewsModule,
         SearchesModule,
+        MatchModule,
         AuthenticationModule,
         EmailVerificationModule,
         MailerModule.forRootAsync({

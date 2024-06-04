@@ -11,13 +11,11 @@ export class UsersController {
     async findUserToAuth(
         @Query('username') username: string,
         @Query('password') password: string) {
-        console.log('huh');
-        console.log(username, password);
+        username = username.toLowerCase();
         const data = await (this.usersService.findUserToAuth(username, password));
-        console.log(data);
-        if (data != null || data != undefined ) {
+        if (data != null || data != undefined) {
             return '{"code": "1", "msg": "OK"}';
-        }else{
+        } else {
             return '{"code": "0", "msg": "USER_NOT_FOUND"}';
         }
     }
@@ -26,6 +24,8 @@ export class UsersController {
 
     @Post('signup')
     create(@Body() createUserDto: CreateUserDto) {
+        createUserDto.username = createUserDto.username.toLowerCase();
+        createUserDto.email = createUserDto.email.toLowerCase();
         return this.usersService.create(createUserDto);
     }
 

@@ -10,7 +10,6 @@ export class SearchesController {
     @Query('search') search: string,
     @Query('region') region: string,
   ) {
-    console.log(search);
     return this.searchesService.findAll(search, region);
   }
 

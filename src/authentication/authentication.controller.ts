@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { AuthenticationService } from './authentication.service';
 import { CreateAuthenticationDto } from './dto/create-authentication.dto';
 import { UpdateAuthenticationDto } from './dto/update-authentication.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -23,7 +24,6 @@ export class AuthenticationController {
         sgMail
             .send(msg)
             .then(() => {
-                console.log('Email sent')
             })
             .catch((error) => {
                 console.error(error)

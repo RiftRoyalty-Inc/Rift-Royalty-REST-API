@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 export class SearchesService {
 
     async findAll(search: string, region:string) {
-        console.log(search);
         const requestBody = {
             "operationName": "LolSearchQuery",
             "variables": {

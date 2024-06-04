@@ -16,19 +16,38 @@ export class UsersService {
     ) { }
 
     async create(createUserDto: CreateUserDto) {
+        const { username, email, password } = createUserDto;
         const salt = await bcrypt.genSalt();
-        const hash = await bcrypt.hash(createUserDto.password, salt);
+        const hash = await bcrypt.hash(password, salt);
         createUserDto.password = hash;
         createUserDto.role = 'user';
         createUserDto.active = true;
-        console.log(createUserDto);
-        const user = this.usersRepository.create(createUserDto);
-        const res = await this.usersRepository.save(user);
-        if (res != null || res != undefined) {
-            await this.emailVerificationService.sendVerificationEmail({ email: createUserDto.email });
-            return `{"code": "1", "msg": "OK"}`;
+        const userExists = await this.usersRepository.findOne({ where: [{ username }, { email }] });
+        if (userExists) {
+            if (!userExists.isVerified) {
+                userExists.username = username;
+                userExists.email = email;
+                userExists.password = hash;
+                userExists.role = 'user';
+                const updatedUser = await this.usersRepository.save(userExists);
+                if (updatedUser) {
+                    await this.emailVerificationService.sendVerificationEmail({ email });
+                    return `{"code": "1", "msg": "OK"}`;
+                } else {
+                    return `{"code": "100", "msg": "Unknown Error!"}`;
+                }
+            } else {
+                return `{"code": "0", "msg": "User already exists!"}`;
+            }
         } else {
-            return `{"code": "0", "msg": "USER_NOT_CREATED"}`;
+            const user = this.usersRepository.create(createUserDto);
+            const res = await this.usersRepository.save(user);
+            if (res != null || res != undefined) {
+                await this.emailVerificationService.sendVerificationEmail({ email: createUserDto.email });
+                return `{"code": "1", "msg": "OK"}`;
+            } else {
+                return `{"code": "101", "msg": "Unknown Error!"}`;
+            }
         }
     }
 
@@ -37,12 +56,10 @@ export class UsersService {
     }
 
     async findAll() {
-        console.log('finding. . .');
         return await this.usersRepository.find();
     }
 
     async findByUsername(usernameAux: string) {
-        console.log('here');
         return await this.usersRepository.findOne({ where: { username: usernameAux } });
     }
 

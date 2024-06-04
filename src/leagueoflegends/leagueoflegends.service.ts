@@ -16,7 +16,6 @@ export class LeagueoflegendsService {
 
     async linkAccount(gameName: string, tagLine: string) {
         const URL = `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}`;
-        console.log(URL);
         const response = await fetch(URL, {
             method: 'GET',
             headers: {

@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { response } from 'express';
 import { ConfigModule } from '@nestjs/config';
+import { MatchService } from 'src/match/match.service';
 
 @Injectable()
 export class SummonerService {
+
+    constructor(
+        private readonly matchService: MatchService
+    ) { }
+
     /**
      * Retrieves the PUUID of a summoner using their tag line, game name, and region.
      *
@@ -16,9 +22,7 @@ export class SummonerService {
         if (!["EUROPE", "AMERICAS", "ASIA", "ESPORTS"].includes(region.toUpperCase())) {
             region = this.parseRegionCode(region);
         }
-        console.log("get puuid . . .");
         const URL = `https://${region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}`;
-        console.log(URL);
         const response =
             await fetch(`${URL}`, {
                 method: 'GET',
@@ -32,17 +36,20 @@ export class SummonerService {
         return data.puuid;
     }
 
-    async linkAccount(gameName: string, tagLine: string, region: string, currentIconId: string) {
+    async linkAccount(gameName: string, tagLine: string, region: string, currentIconId: string, iconToChangeTo: string) {
         const puuid = await this.getPuuid(tagLine, gameName, region);
-        console.log(puuid);
         const summoner = await this.getSummonerByPuuid(region, puuid);
-        console.log(summoner);
         // Check if the passed profileIconId is the different from the current profileIconId
         // If it is, it means the user has "proven" that the account is his and can link accounts
-        if (currentIconId != summoner.profileIconId) {
-            console.log('true');
+        if (iconToChangeTo != currentIconId) {
+            if (summoner.profileIconId == iconToChangeTo) {
+
+                return `{"code": 200, "message": "Account Linked"}`;
+            } else {
+                return `{"code": 401, "message": "Account Not Linked"}`;
+            }
         } else {
-            console.log('false');
+            return `{"code": 400, "message": "Account Not Linked"}`;
         }
         // const URL = '';
         // const response = await fetch(URL, {
@@ -53,7 +60,6 @@ export class SummonerService {
         //         'Accept': 'application/json',
         //     }
         // }).then(response => response.json()).then(data => data.puuid).catch(error => console.log(error));
-        return 'response';
     }
 
     /**
@@ -66,23 +72,13 @@ export class SummonerService {
         const regions = ["BR1", "EUN1", "EUW1", "JP1", "KR", "LA1", "LA2", "NA1", "OC1", "PH2", "RU", "SG2", "TH2", "TR1", "TW2", "VN2"];
         let URL = "";
         URL = `https://${region}.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=${process.env.API_KEY}`;
-        console.log(URL);
         // retrieves summonerId, wins, losses, leaguePoints, uses regions euw1, na1...
         const response = await fetch(URL, {});
-        console.log('== RESPONSE ==')
-        console.log(response);
         const data = (await response.json()).entries;
-        console.log('== DATA ==')
-        console.log(data);
         const sortedData = data.sort((a, b) => b.leaguePoints - a.leaguePoints).slice(0, 5);
         const promises = sortedData.map(async element => {
             const summonerData = await this.getSummonerBySummonerID(element.summonerId, region);
-            console.log('== SUMMONER DATA ==')
-            console.log(summonerData);
-            console.log('== Breaks after this? ==')
-            console.log(region, summonerData.puuid);
             const detailsData = await this.getAccountByPuuid(region, summonerData.puuid);
-            console.log(detailsData);
             return {
                 summonerLevel: summonerData.summonerLevel,
                 leaguePoints: element.leaguePoints,
@@ -95,8 +91,6 @@ export class SummonerService {
         });
 
         const results = await Promise.all(promises);
-        console.log('== RESULTS ==')
-        console.log(results);
         let json = '[';
         let counter = 1;
         results.forEach(result => {
@@ -104,7 +98,6 @@ export class SummonerService {
         });
         json = json.substring(0, json.length - 1);
         json += ']';
-        console.log(json);
         return json;
     }
 
@@ -139,9 +132,7 @@ export class SummonerService {
      */
     async getAccountByPuuid(region: string, puuid: string) {
         // BR1", "EUN1", "EUW1", "JP1", "KR", "LA1", "LA2", "NA1", "OC1", "PH2", "RU", "SG2", "TH2", "TR1", "TW2", "VN2
-        console.log(region);
         region = this.parseRegionCode(region);
-        console.log(region);
         const URL = `https://${region}.api.riotgames.com/riot/account/v1/accounts/by-puuid/${puuid}`;
         const response = await fetch(URL, {
             method: 'GET',
@@ -151,10 +142,7 @@ export class SummonerService {
                 'Accept': 'application/json',
             }
         });
-        console.log(URL);
         const data = (await response.json());
-        console.log('get summoner by puuid');
-        console.log(data);
         return data;
         // retrieves gameName, tagLine, uses continents: EUROPE, AMERICAS, ASIA, ESPORTS
     }
@@ -173,7 +161,6 @@ export class SummonerService {
      */
     async getSummonerByPuuid(regionCode: string, puuid: string) {
         if (this.parseRegionCode(regionCode) == null) {
-            console.log("e");
             regionCode = this.parseRegionCode(regionCode);
         }
         const URL = `https://${regionCode}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`;
@@ -195,7 +182,6 @@ export class SummonerService {
      * @return {string} The region name corresponding to the input region code.
      */
     parseRegionCode(region: string) {
-        console.log("parsing regioncode . . .")
         if (region == "BR1" || region == "LA1" || region == "LA2" || region == "NA1") {
             return "AMERICAS";
         } else if (region == "EUN1" || region == "EUW1" || region == "RU" || region == "TR1") {
@@ -210,18 +196,21 @@ export class SummonerService {
     async getSummonerIcon(gameName: string, tagLine: string, region: string) {
         const puuid = await this.getPuuid(tagLine, gameName, region);
         const summoner = await this.getSummonerByPuuid(region, puuid);
-        console.log(summoner.status == undefined);
         const code = summoner.status != undefined ? summoner.status.status_code : 200;
         let message = '';
-        console.log(code);
-        console.log(summoner)
         if (code != 200) {
             message = 'Summoner Not Found!';
-        }else{
+        } else {
             message = 'Summoner Found';
         }
         return `{"code": "${code}", "profileIconId": "${summoner.profileIconId}", "message": "${message}"}`;
 
+    }
+
+    async getMatches(gameName: string, tagLine:string, region:string){
+        const puuid = await this.getPuuid(tagLine, gameName, region);
+        const matches = this.matchService.getMatchesByPuuid(puuid);
+        return matches
     }
 
 }

@@ -11,6 +11,9 @@ export class SummonerController {
         @Query('tagLine') tagLine: string,
         @Query('region') region: string,
     ) {
+        gameName = gameName.toLowerCase();
+        tagLine = tagLine.toLowerCase();
+        region = region.toUpperCase();
         return this.summonerService.getPuuid(tagLine, gameName, region);
     }
 
@@ -20,7 +23,22 @@ export class SummonerController {
         @Query('tagLine') tagLine: string,
         @Query('region') region: string,
     ) {
+        gameName = gameName.toLowerCase();
+        tagLine = tagLine.toLowerCase();
+        region = region.toUpperCase();
         return this.summonerService.getSummonerIcon(gameName, tagLine, region);
+    }
+
+    @Get('getmatches')
+    getMatches(
+        @Query('gameName') gameName: string,
+        @Query('tagLine') tagLine: string,
+        @Query('region') region: string,
+    ){
+        gameName = gameName.toLowerCase();
+        tagLine = tagLine.toLowerCase();
+        region = region.toUpperCase();
+        return this.summonerService.getMatches(gameName, tagLine, region);
     }
 
     @Post('linkaccount')
@@ -28,19 +46,20 @@ export class SummonerController {
         @Query('gameName') gameName: string,
         @Query('tagLine') tagLine: string,
         @Query('region') region: string,
-        @Query('iconId') currentIconId: string,
+        @Query('profileIconId') currentIconId: string,
+        @Query('newIcon') iconToChangeTo: string,
     ) {
-        return this.summonerService.linkAccount(gameName, tagLine, region, currentIconId);
+        gameName = gameName.toLowerCase();
+        tagLine = tagLine.toLowerCase();
+        region = region.toUpperCase();
+        return this.summonerService.linkAccount(gameName, tagLine, region, currentIconId, iconToChangeTo);
     }
 
     @Get('top-players-world')
     getTopPlayersWorld(
         @Query('region') region: string,
     ) {
-        if (region == null || region == "") {
-            region = "euw1"
-        }
-        console.log(region);
+        region = region.toUpperCase();
         return this.summonerService.getTopPlayersWorld(region);
     }
 }

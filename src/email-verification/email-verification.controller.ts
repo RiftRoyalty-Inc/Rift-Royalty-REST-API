@@ -9,16 +9,22 @@ export class EmailVerificationController {
 
     @Post('send')
     create(@Body() emailObj: { email: string }) {
+        emailObj.email = emailObj.email.trim();
+        emailObj.email = emailObj.email.toLowerCase();
         return this.emailVerificationService.sendVerificationEmail(emailObj);
     }
 
     @Post('verify')
     verifyCode(@Body() authObj: { email: string, code: string }) {
+        authObj.email = authObj.email.trim();
+        authObj.email = authObj.email.toLowerCase();
         return this.emailVerificationService.verifyCode(authObj);
     }
 
     @Post('resend')
     resendVerificationEmail(@Body() authObj: { email: string }) {
+        authObj.email = authObj.email.trim();
+        authObj.email = authObj.email.toLowerCase();
         return this.emailVerificationService.resendVerificationEmail(authObj);
     }
 
