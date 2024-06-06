@@ -23,7 +23,6 @@ export class MatchService {
         const matchArray = await Promise.all(matchPromises);
         return matchArray;
     }
-
     async getMatches(matchId: string, puuid: string, region:string) {
         const URL = `https://${region}.api.riotgames.com/lol/match/v5/matches/${matchId}`;
         console.log("buh");

@@ -6,7 +6,6 @@ import { User } from './entities/user.entity';
 import { EmailVerificationModule } from 'src/email-verification/email-verification.module';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { SummonerModule } from 'src/summoner/summoner.module';
-
 @Module({
     imports: [
         TypeOrmModule.forFeature([User]),

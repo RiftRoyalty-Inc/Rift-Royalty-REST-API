@@ -15,7 +15,6 @@ export class AuthenticationService {
         const payload = { userId: user.id, email: user.email };
         return this.jwtService.sign(payload); // Generate a JWT token with the provided payload
     }
-
     async compareJwtToken(userToken: string){
         return this.jwtService.decode(userToken);
     }

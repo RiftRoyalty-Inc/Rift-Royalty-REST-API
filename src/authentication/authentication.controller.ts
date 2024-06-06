@@ -30,7 +30,6 @@ export class AuthenticationController {
             })
         return this.authenticationService.SendAuthCode(email);
     }
-
     @Post('comparetoken')
     compareToken(@Headers('userToken') userToken: string) {
         return this.authenticationService.compareJwtToken(userToken);

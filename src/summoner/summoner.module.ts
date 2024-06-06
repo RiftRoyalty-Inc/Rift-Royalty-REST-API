@@ -4,7 +4,6 @@ import { SummonerController } from './summoner.controller';
 import { MatchModule } from 'src/match/match.module';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { UsersModule } from 'src/users/users.module';
-
 @Module({
     imports: [
         MatchModule,

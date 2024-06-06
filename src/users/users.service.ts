@@ -90,7 +90,6 @@ export class UsersService {
         }
         return `{"code":"${code}","msg":"${msg}"}`
     }
-
     async findUserToAuth(email: string, password: string) {
         const userExists = await this.usersRepository.findOne({ where: { email } });
         let code: string;

@@ -40,7 +40,6 @@ export class SummonerController {
         region = region.toUpperCase();
         return this.summonerService.getMatches(gameName, tagLine, region);
     }
-
     @Post('linkaccount')
     linkAccount(
         @Query('gameName') gameName: string,

@@ -63,15 +63,6 @@ export class SummonerService {
         } else {
             return `{"code": 400, "message": "Account Not Linked"}`;
         }
-        // const URL = '';
-        // const response = await fetch(URL, {
-        //     method: 'GET',
-        //     headers: {
-        //         'X-Riot-Token': process.env.API_KEY,
-        //         'Content-Type': 'application/json',
-        //         'Accept': 'application/json',
-        //     }
-        // }).then(response => response.json()).then(data => data.puuid).catch(error => console.log(error));
     }
 
     /**

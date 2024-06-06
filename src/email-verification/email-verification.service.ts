@@ -15,7 +15,6 @@ export class EmailVerificationService {
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         private readonly authenticationService: AuthenticationService,
     ) { }
-
     async sendVerificationEmail(emailObj: { email: string }) {
         const email = emailObj.email.trim();
         const user = await this.userRepository.findOne({ where: { email, isVerified: false } });

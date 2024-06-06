@@ -18,7 +18,6 @@ export class UsersController {
         const data = await (this.usersService.findUserToAuth(email, password));
         return data;
     }
-
     @Post('gamelinked')
     async isGameLinked(
         @Headers('userToken') userToken: string,
