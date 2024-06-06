@@ -4,4 +4,7 @@ export class CreateUserDto {
     email: string;
     role: string;
     active: boolean;
+    isVerified: boolean;
+    puuid: string;
+    region: string;
 }

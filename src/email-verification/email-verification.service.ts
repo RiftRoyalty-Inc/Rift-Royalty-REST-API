@@ -96,9 +96,9 @@ export class EmailVerificationService {
             if (now > emailVerification.expires_at) {
                 return false;
             }
-            user.isVerified = false ;
+            user.isVerified = true;
             await this.userRepository.save(user);
-            // await this.emailVerificationRepository.remove(emailVerification);
+            await this.emailVerificationRepository.remove(emailVerification);
             const token = await this.authenticationService.generateJwtToken(user);
             return `{"code": "1", "msg": "Code is correct!", "token": "${token}"}`;
         }

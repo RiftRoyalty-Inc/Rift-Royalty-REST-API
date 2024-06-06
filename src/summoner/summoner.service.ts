@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { response } from 'express';
 import { ConfigModule } from '@nestjs/config';
 import { MatchService } from 'src/match/match.service';
+import { AuthenticationService } from 'src/authentication/authentication.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class SummonerService {
 
     constructor(
-        private readonly matchService: MatchService
+        private readonly matchService: MatchService,
+        private readonly authService: AuthenticationService,
+        @Inject(forwardRef(() => UsersService))
+        private readonly userService: UsersService,
     ) { }
 
     /**
@@ -22,7 +27,8 @@ export class SummonerService {
         if (!["EUROPE", "AMERICAS", "ASIA", "ESPORTS"].includes(region.toUpperCase())) {
             region = this.parseRegionCode(region);
         }
-        const URL = `https://${region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}`;
+        const URL = `https://${region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${tagLine}`;
+        console.log(URL);
         const response =
             await fetch(`${URL}`, {
                 method: 'GET',
@@ -36,14 +42,20 @@ export class SummonerService {
         return data.puuid;
     }
 
-    async linkAccount(gameName: string, tagLine: string, region: string, currentIconId: string, iconToChangeTo: string) {
+    async linkAccount(gameName: string, tagLine: string, region: string, currentIconId: string, iconToChangeTo: string, userToken: string) {
         const puuid = await this.getPuuid(tagLine, gameName, region);
         const summoner = await this.getSummonerByPuuid(region, puuid);
         // Check if the passed profileIconId is the different from the current profileIconId
         // If it is, it means the user has "proven" that the account is his and can link accounts
         if (iconToChangeTo != currentIconId) {
             if (summoner.profileIconId == iconToChangeTo) {
-
+                const userData = await this.authService.compareJwtToken(userToken);
+                console.log(userData);
+                const user = await this.userService.findOne(userData.userId);
+                console.log(user);
+                user.puuid = puuid;
+                user.region = 'EUW1';
+                await this.userService.update(user.id, user);
                 return `{"code": 200, "message": "Account Linked"}`;
             } else {
                 return `{"code": 401, "message": "Account Not Linked"}`;
@@ -182,11 +194,12 @@ export class SummonerService {
      * @return {string} The region name corresponding to the input region code.
      */
     parseRegionCode(region: string) {
-        if (region == "BR1" || region == "LA1" || region == "LA2" || region == "NA1") {
+        console.log(region);
+        if (region == "BR1" || region == "LA1" || region == "LA2" || region == "NA1" || region == "LAN" || region == "LAS" || region == "NA" || region == "lan" || region == "BR" || region == "LAS" || region == "LAN" || region == "NA") {
             return "AMERICAS";
-        } else if (region == "EUN1" || region == "EUW1" || region == "RU" || region == "TR1") {
+        } else if (region == "EUN1" || region == "EUW1" || region == "RU" || region == "TR1" || region == "EUNE" || region == "EUW" || region == "TR") {
             return "EUROPE"
-        } else if (region == "KR" || region == "PH2" || region == "SG2" || region == "TW2" || region == "TH2" || region == "VN2") {
+        } else if (region == "KR" || region == "PH2" || region == "SG2" || region == "TW2" || region == "TH2" || region == "VN2" || region == "PH" || region == "SG" || region == "TW" || region == "TH" || region == "VN") {
             return "ASIA"
         } else {
             return null;
@@ -204,12 +217,14 @@ export class SummonerService {
             message = 'Summoner Found';
         }
         return `{"code": "${code}", "profileIconId": "${summoner.profileIconId}", "message": "${message}"}`;
-
     }
 
-    async getMatches(gameName: string, tagLine:string, region:string){
+    async getMatches(gameName: string, tagLine: string, region: string) {
         const puuid = await this.getPuuid(tagLine, gameName, region);
-        const matches = this.matchService.getMatchesByPuuid(puuid);
+        if (!["EUROPE", "AMERICAS", "ASIA", "ESPORTS"].includes(region.toUpperCase())) {
+            region = this.parseRegionCode(region);
+        }
+        const matches = this.matchService.getMatchesByPuuid(puuid, region);
         return matches
     }
 

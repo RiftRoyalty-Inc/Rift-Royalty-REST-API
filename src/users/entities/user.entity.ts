@@ -22,4 +22,11 @@ export class User {
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
+
+    @Column({ type: 'text', default: '' })
+    puuid: string;
+
+    @Column({ type: 'text', default: '' })
+    region: string;
+
 }

@@ -5,8 +5,8 @@ export class MatchService {
 
     constructor() { }
 
-    async getMatchesByPuuid(puuid: string) {
-        const URL = `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=5`;
+    async getMatchesByPuuid(puuid: string, region: string) {
+        const URL = `https://${region}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=5`;
         const response = await fetch(URL, {
             method: 'GET',
             headers: {
@@ -16,16 +16,17 @@ export class MatchService {
             }
         });
         const data = await response.json();
-
+        console.log(data);
         const matchPromises = data.map(async match => {
-            return await this.getMatches(match, puuid);
+            return await this.getMatches(match, puuid, region);
         });
         const matchArray = await Promise.all(matchPromises);
         return matchArray;
     }
 
-    async getMatches(matchId: string, puuid: string) {
-        const URL = `https://europe.api.riotgames.com/lol/match/v5/matches/${matchId}`;
+    async getMatches(matchId: string, puuid: string, region:string) {
+        const URL = `https://${region}.api.riotgames.com/lol/match/v5/matches/${matchId}`;
+        console.log("buh");
         console.log(URL);
         const response = await fetch(URL, {
             method: 'GET',
@@ -38,7 +39,6 @@ export class MatchService {
         const data = await response.json();
 
         if (!data.info) {
-            console.log(data);
             console.error(`No match info found for matchId: ${matchId}`);
             return null;
         }
@@ -101,12 +101,12 @@ export class MatchService {
                 participantInfo.item6 > 0 ? `https://ddragon.leagueoflegends.com/cdn/14.10.1/img/item/${participantInfo.item6}.png` : 'https://i.imgur.com/HIGQKrd.png',
             ],
             tags: [
-                ...((participantInfo.gameEndedInSurrender || participantInfo.gameEndedInEarlySurrender) && !participantInfo.win ? ['You surrendered :('] : []),
-                participantInfo.win ? 'Victory' : 'Defeat',
+                ...((participantInfo.gameEndedInSurrender || participantInfo.gameEndedInEarlySurrender) && !participantInfo.win ? ['You Surrendered :('] : []),
                 ...(participantInfo.quadraKills > 0 ? ['Quadra Kill!'] : []),
                 ...(participantInfo.pentaKills > 0 ? ['PENTAKILL!'] : []),
                 ...(participantInfo.killingSprees > 0 ? ['Killing Spree'] : [])
-            ]
+            ],
+            result: participantInfo.win ? 'Victory' : 'Defeat',
         };
         return match;
     }
@@ -189,15 +189,17 @@ export class MatchService {
         let timeAgo = '';
         if (days > 0) {
             timeAgo += `${days} days `;
-        }
-        if (hours > 0) {
-            timeAgo += `${hours} hours `;
-        }
-        if (minutes > 0) {
-            timeAgo += `${minutes} minutes `;
-        }
-        if (seconds > 0) {
-            timeAgo += `${seconds} seconds `;
+        } else {
+            if (hours > 0) {
+                timeAgo += `${hours} hours `;
+            } else {
+                if (minutes > 0) {
+                    timeAgo += `${minutes} minutes `;
+                }
+                if (seconds > 0) {
+                    timeAgo += `${seconds} seconds `;
+                }
+            }
         }
         return timeAgo.trim();
     }

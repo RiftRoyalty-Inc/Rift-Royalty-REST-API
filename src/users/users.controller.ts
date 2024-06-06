@@ -1,26 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthenticationService } from 'src/authentication/authentication.service';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+    constructor(
+        private readonly usersService: UsersService,
+    ) { }
 
     @Get('signin')
     async findUserToAuth(
-        @Query('username') username: string,
-        @Query('password') password: string) {
-        username = username.toLowerCase();
-        const data = await (this.usersService.findUserToAuth(username, password));
-        if (data != null || data != undefined) {
-            return '{"code": "1", "msg": "OK"}';
-        } else {
-            return '{"code": "0", "msg": "USER_NOT_FOUND"}';
-        }
+        @Headers('email') email: string,
+        @Headers('password') password: string) {
+        email = email.toLowerCase();
+        const data = await (this.usersService.findUserToAuth(email, password));
+        return data;
     }
 
-
+    @Post('gamelinked')
+    async isGameLinked(
+        @Headers('userToken') userToken: string,
+    ) {
+        return this.usersService.isGameLinked(userToken);
+    }
 
     @Post('signup')
     create(@Body() createUserDto: CreateUserDto) {
